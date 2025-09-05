@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <main class="container mx-auto max-w-4xl w-full bg-white rounded-xl shadow-lg p-6 md:p-8">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">CSV Data Analyzer</h1>
+            <p class="text-gray-500 mt-2">Upload your CSV file to see a quick preview and data summary.</p>
+        </div>
+
+        <button id="theme-toggle-btn" class="theme-toggle absolute top-4 right-4 bg-gray-200 dark:bg-gray-700 p-2 rounded-full">Toggle Theme</button>
+        
+        <div id="upload-area">
+            <label for="file-upload" class="cursor-pointer">
+                <div id="file-drop-area" class="file-drop-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100">
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                         <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h10a4 4 0 014 4v6a4 4 0 01-4 4H7z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 16v2a2 2 0 01-2 2H8a2 2 0 01-2-2v-2m5 5v-4"></path></svg>
+                        <p class="text-gray-600 font-medium">
+                            <span class="text-blue-600">Click to upload</span> or drag and drop
+                        </p>
+                        <p class="text-xs text-gray-500" id="file-name">CSV files only</p>
+                    </div>
+                </div>
+            </label>
+            <input id="file-upload" type="file" class="hidden" accept=".csv" />
+        </div>
+        
+        <div id="results-area" class="hidden mt-8 space-y-8">
+            <div id="loading" class="hidden justify-center items-center py-8">
+                <div class="spinner"></div>
+            </div>
+
+            <div id="error-message" class="hidden p-4 bg-red-100 text-red-700 rounded-lg"></div>
+
+            <div id="summary-section" class="hidden">
+                 <div class="flex justify-between items-center border-b pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold">Analysis Results</h2>
+                        <p class="text-gray-500" id="summary-text">Summary of your file.</p>
+                    </div>
+                    <button id="reset-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                        Analyze Another
+                    </button>
+                </div>
+            </div>
+
+            <div id="preview-section" class="hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xl font-semibold">Data Preview</h3>
+                    <div class="flex items-center space-x-2">
+                        <label for="num-rows-input" class="text-sm font-medium text-gray-600">Rows:</label>
+                        <input type="number" id="num-rows-input" value="5" min="1" class="w-20 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    </div>
+                </div>
+                <div id="table-container" class="overflow-x-auto"></div>
+            </div>
+            
+            <div id="description-section" class="hidden">
+                <h3 class="text-xl font-semibold mb-2">Column Description</h3>
+                <div id="description-container" class="overflow-x-auto"></div>
+            </div>
+
+            <div id="stats-section" class="hidden">
+                <h3 class="text-xl font-semibold mb-2">Descriptive Statistics</h3>
+                <p class="text-sm text-gray-600 mb-4">Select the numeric columns you want to analyze.</p>
+                <div id="column-selector" class="space-y-2 mb-4">
+                    </div>
+                <button id="calculate-stats-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    Calculate Stats
+                </button>
+                <div id="stats-container" class="overflow-x-auto mt-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

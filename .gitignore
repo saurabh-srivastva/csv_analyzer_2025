@@ -1,0 +1,9 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment folder
+backend/venv/
+
+# OS-specific
+.DS_Store

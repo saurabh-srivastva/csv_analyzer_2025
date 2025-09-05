@@ -1,0 +1,145 @@
+/* Custom styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6; /* A light gray background */
+}
+/* Style for the generated tables from pandas */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+}
+tbody tr:last-child td {
+    border-bottom: none;
+}
+/* Custom file input styling */
+.file-drop-area {
+    transition: border-color 0.2s, background-color 0.2s;
+}
+.file-drop-area.drag-over {
+    border-color: #3b82f6; /* Blue-500 */
+    background-color: #eff6ff; /* Blue-50 */
+}
+/* Simple spinner for loading state */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #3b82f6;
+    animation: spin 1s ease infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* Custom styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6; /* A light gray background */
+}
+/* Style for the generated tables from pandas */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+}
+tbody tr:last-child td {
+    border-bottom: none;
+}
+/* Custom file input styling */
+.file-drop-area {
+    transition: border-color 0.2s, background-color 0.2s;
+}
+.file-drop-area.drag-over {
+    border-color: #3b82f6; /* Blue-500 */
+    background-color: #eff6ff; /* Blue-50 */
+}
+/* Simple spinner for loading state */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #3b82f6;
+    animation: spin 1s ease infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* --- Dark Theme Styles --- */
+/* Add this to the end of your style.css file */
+
+body.dark-theme {
+    background-color: #1f2937; /* A dark gray background */
+    color: #d1d5db; /* A light gray text color */
+}
+
+body.dark-theme main {
+    background-color: #374151; /* A slightly lighter card background */
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+}
+
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3 {
+    color: #f9fafb; /* White text for headings */
+}
+
+body.dark-theme p,
+body.dark-theme #summary-text {
+    color: #9ca3af; /* A muted gray for paragraphs */
+}
+
+/* Dark theme for tables */
+body.dark-theme th {
+    background-color: #4b5563;
+    color: #f9fafb;
+    border-bottom: 1px solid #4b5563;
+}
+
+body.dark-theme td {
+    border-bottom: 1px solid #4b5563;
+}
+
+body.dark-theme tbody tr:hover {
+    background-color: #4b5563;
+}
+
+/* Dark theme for file drop area */
+body.dark-theme #file-drop-area {
+    background-color: #4b5563;
+    border-color: #6b7280;
+}
+
+body.dark-theme #file-drop-area.drag-over {
+    border-color: #3b82f6;
+    background-color: #2b3a54;
+}
