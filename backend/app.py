@@ -95,6 +95,10 @@ def describe_columns():
     except Exception as e:
         return jsonify({'error': f'Error generating statistics: {e}'}), 500
 
+# app.py - AFTER (Fixed)
+# Make sure to add this at the top of your file
+import numpy as np
+
 @app.route('/plot', methods=['POST'])
 def get_plot_data():
     df, error_response = process_file_to_dataframe(request)
@@ -111,14 +115,28 @@ def get_plot_data():
         return jsonify({'error': f'Column "{column_name}" not found in file.'}), 400
 
     try:
-        # For categorical data, get value counts. Limit to top 15 for readability.
-        counts = df[column_name].value_counts().nlargest(15)
-        
-        # Prepare data in a format Chart.js understands
-        plot_data = {
-            'labels': counts.index.astype(str).tolist(), # Ensure labels are strings
-            'data': counts.values.tolist()
-        }
+        column_series = df[column_name].dropna() # Drop nulls before plotting
+
+        # Check if the column is numeric and has too many unique values for a bar chart
+        if pd.api.types.is_numeric_dtype(column_series) and column_series.nunique() > 15:
+            # It's numeric with high cardinality, so create a histogram
+            counts, bin_edges = np.histogram(column_series, bins=15)
+            labels = []
+            for i in range(len(bin_edges) - 1):
+                # Create labels like "10.5 - 20.0"
+                labels.append(f'{bin_edges[i]:.1f} - {bin_edges[i+1]:.1f}')
+            
+            plot_data = {
+                'labels': labels,
+                'data': counts.tolist()
+            }
+        else:
+            # It's categorical or has few unique values, so use value_counts
+            counts = column_series.value_counts().nlargest(15)
+            plot_data = {
+                'labels': counts.index.astype(str).tolist(),
+                'data': counts.values.tolist()
+            }
         
         return jsonify(plot_data)
 

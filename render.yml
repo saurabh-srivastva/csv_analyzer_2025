@@ -1,7 +1,8 @@
+# render.yml - AFTER (Fixed)
+
 services:
   - type: web
     name: csv-backend
     env: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
+    [cite_start]buildCommand: pip install -r requirements.txt [cite: 1]
+    [cite_start]startCommand: gunicorn --bind 0.0.0.0:$PORT app:app [cite: 1]

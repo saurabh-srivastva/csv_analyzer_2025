@@ -38,10 +38,13 @@ let currentFile = null; // To store the uploaded file reference
 let columnData = []; // To store column info (name, type)
 
 // --- Backend API URLs ---
-const RENDER_BACKEND_URL = 'https://csv-analyzer-backend.onrender.com'; // Make sure this matches your backend URL
-const ANALYZE_URL = `${RENDER_BACKEND_URL}/analyze`;
-const DESCRIBE_URL = `${RENDER_BACKEND_URL}/describe`;
-const PLOT_URL = `${RENDER_BACKEND_URL}/plot`;
+// script.js - AFTER (Fixed)
+
+// --- Backend API URLs ---
+// Using relative paths makes this work for both local development and deployment
+const ANALYZE_URL = '/analyze';
+const DESCRIBE_URL = '/describe';
+const PLOT_URL = '/plot';
 
 // --- Event Listeners ---
 fileInput.addEventListener('change', (e) => handleFileSelection(e.target.files[0]));
