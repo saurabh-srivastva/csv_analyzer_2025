@@ -32,8 +32,9 @@ let currentFile = null; // To store the uploaded file reference
 let columnData = []; // To store column info (name, type)
 
 // --- Backend API URLs ---
-const ANALYZE_URL = 'http://127.0.0.1:5000/analyze';
-const DESCRIBE_URL = 'http://127.0.0.1:5000/describe';
+const RENDER_BACKEND_URL = ''; // <-- Paste your live URL here
+const ANALYZE_URL = `${RENDER_BACKEND_URL}/analyze`;
+const DESCRIBE_URL = `${RENDER_BACKEND_URL}/describe`;
 
 // --- Event Listeners ---
 
