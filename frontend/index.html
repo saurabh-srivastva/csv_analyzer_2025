@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
 
@@ -80,6 +81,30 @@
                     Calculate Stats
                 </button>
                 <div id="stats-container" class="overflow-x-auto mt-4"></div>
+            </div>
+            
+            <div id="plotting-section" class="hidden">
+                <h3 class="text-xl font-semibold mb-2">Data Visualization</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <div>
+                        <label for="plot-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Chart Type</label>
+                        <select id="plot-type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            <option value="bar">Bar Chart</option>
+                            <option value="pie">Pie Chart</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="plot-column" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Column</label>
+                        <select id="plot-column" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </select>
+                    </div>
+                    <button id="generate-plot-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-colors w-full">
+                        Generate Plot
+                    </button>
+                </div>
+                <div class="mt-4">
+                    <canvas id="myChart"></canvas>
+                </div>
             </div>
         </div>
 

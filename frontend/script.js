@@ -18,7 +18,6 @@ const tableContainer = document.getElementById('table-container');
 const descriptionSection = document.getElementById('description-section');
 const descriptionContainer = document.getElementById('description-container');
 
-// New stats section elements
 const statsSection = document.getElementById('stats-section');
 const columnSelector = document.getElementById('column-selector');
 const calculateStatsBtn = document.getElementById('calculate-stats-btn');
@@ -27,17 +26,24 @@ const statsContainer = document.getElementById('stats-container');
 const resetButton = document.getElementById('reset-button');
 const themeToggleButton = document.getElementById('theme-toggle-btn');
 
+// NEW Plotting Elements
+const plottingSection = document.getElementById('plotting-section');
+const plotTypeSelect = document.getElementById('plot-type');
+const plotColumnSelect = document.getElementById('plot-column');
+const generatePlotBtn = document.getElementById('generate-plot-btn');
+let myChart = null; // To hold the chart instance
+
 // --- State variables ---
 let currentFile = null; // To store the uploaded file reference
 let columnData = []; // To store column info (name, type)
 
 // --- Backend API URLs ---
-const RENDER_BACKEND_URL = 'https://csv-analyzer-backend-s9uz.onrender.com'; // <-- Paste your live URL here
+const RENDER_BACKEND_URL = 'https://csv-analyzer-backend.onrender.com'; // Make sure this matches your backend URL
 const ANALYZE_URL = `${RENDER_BACKEND_URL}/analyze`;
 const DESCRIBE_URL = `${RENDER_BACKEND_URL}/describe`;
+const PLOT_URL = `${RENDER_BACKEND_URL}/plot`;
 
 // --- Event Listeners ---
-
 fileInput.addEventListener('change', (e) => handleFileSelection(e.target.files[0]));
 fileDropArea.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -49,20 +55,17 @@ fileDropArea.addEventListener('drop', (e) => {
     fileDropArea.classList.remove('drag-over');
     handleFileSelection(e.dataTransfer.files[0]);
 });
-
-// **FIX**: Re-run analysis when the number of rows is changed
 numRowsInput.addEventListener('change', () => {
     if (currentFile) {
         triggerAnalysis();
     }
 });
-
 resetButton.addEventListener('click', resetUI);
 calculateStatsBtn.addEventListener('click', fetchDescriptiveStats);
 themeToggleButton.addEventListener('click', () => document.body.classList.toggle('dark-theme'));
+generatePlotBtn.addEventListener('click', generatePlot); // NEW Event Listener
 
 // --- Core Functions ---
-
 function handleFileSelection(file) {
     if (!file) return;
     if (!file.name.toLowerCase().endsWith('.csv')) {
@@ -76,17 +79,13 @@ function handleFileSelection(file) {
 
 function triggerAnalysis() {
     if (!currentFile) return;
-
-    // Show loading state
     uploadArea.classList.add('hidden');
     resultsArea.classList.remove('hidden');
     loadingSpinner.style.display = 'flex';
     hideAllSections();
-
     const formData = new FormData();
     formData.append('file', currentFile);
     formData.append('rows', numRowsInput.value);
-
     fetch(ANALYZE_URL, {
         method: 'POST',
         body: formData
@@ -101,7 +100,7 @@ function triggerAnalysis() {
     })
     .catch(error => {
         console.error('Error:', error);
-        displayError(error.message || 'An unexpected error occurred. Is the Python server running?');
+        displayError(error.message || 'An unexpected error occurred.');
     })
     .finally(() => {
         loadingSpinner.style.display = 'none';
@@ -109,42 +108,31 @@ function triggerAnalysis() {
 }
 
 function displayResults(data) {
-    // Store column data for later use
     columnData = data.description;
-
-    // Display summary
     summaryText.textContent = `${data.filename} - ${data.rows} rows, ${data.columns} columns.`;
     summarySection.classList.remove('hidden');
-
-    // Display data preview table
     tableContainer.innerHTML = data.head_html;
     previewSection.classList.remove('hidden');
-    
-    // Display column descriptions table
-    descriptionContainer.innerHTML = ''; // Clear previous
+    descriptionContainer.innerHTML = '';
     descriptionContainer.appendChild(createDescriptionTable(data.description));
     descriptionSection.classList.remove('hidden');
-
-    // NEW: Populate the column selector for stats
     populateColumnSelector(data.description);
+    // NEW: Show plotting section and populate its dropdown
+    populatePlotColumnSelector(data.description);
+    plottingSection.classList.remove('hidden');
 }
 
 function fetchDescriptiveStats() {
     if (!currentFile) return;
-
     const selectedColumns = Array.from(columnSelector.querySelectorAll('input:checked')).map(input => input.value);
-    
     if (selectedColumns.length === 0) {
-        alert('Please select at least one numeric column to describe.');
+        alert('Please select at least one numeric column.');
         return;
     }
-
-    statsContainer.innerHTML = '<div class="flex justify-center"><div class="spinner"></div></div>'; // Show spinner
-
+    statsContainer.innerHTML = '<div class="flex justify-center"><div class="spinner"></div></div>';
     const formData = new FormData();
     formData.append('file', currentFile);
     selectedColumns.forEach(col => formData.append('columns', col));
-
     fetch(DESCRIBE_URL, {
         method: 'POST',
         body: formData
@@ -163,7 +151,6 @@ function fetchDescriptiveStats() {
 }
 
 // --- UI Helper Functions ---
-
 function createDescriptionTable(descriptionData) {
     const table = document.createElement('table');
     table.innerHTML = `
@@ -189,9 +176,8 @@ function createDescriptionTable(descriptionData) {
 }
 
 function populateColumnSelector(descriptionData) {
-    columnSelector.innerHTML = ''; // Clear previous checkboxes
+    columnSelector.innerHTML = '';
     const numericColumns = descriptionData.filter(col => ['int64', 'float64'].includes(col.dtype));
-
     if (numericColumns.length > 0) {
         numericColumns.forEach(col => {
             const checkboxContainer = document.createElement('div');
@@ -204,7 +190,7 @@ function populateColumnSelector(descriptionData) {
         });
         statsSection.classList.remove('hidden');
     } else {
-        statsSection.classList.add('hidden'); // Hide if no numeric columns
+        statsSection.classList.add('hidden');
     }
 }
 
@@ -221,6 +207,10 @@ function hideAllSections() {
     previewSection.classList.add('hidden');
     descriptionSection.classList.add('hidden');
     statsSection.classList.add('hidden');
+    plottingSection.classList.add('hidden'); // NEW
+    if (myChart) { // NEW
+        myChart.destroy();
+    }
     statsContainer.innerHTML = '';
     resetButton.textContent = "Analyze Another";
 }
@@ -233,4 +223,82 @@ function resetUI() {
     resultsArea.classList.add('hidden');
     hideAllSections();
     fileNameDisplay.textContent = 'CSV files only';
+}
+
+// --- NEW Plotting Functions ---
+function populatePlotColumnSelector(descriptionData) {
+    plotColumnSelect.innerHTML = '';
+    descriptionData.forEach(col => {
+        const option = document.createElement('option');
+        option.value = col.column;
+        option.textContent = col.column;
+        plotColumnSelect.appendChild(option);
+    });
+}
+
+function generatePlot() {
+    if (!currentFile) {
+        alert('Please upload a file first.');
+        return;
+    }
+    const plotType = plotTypeSelect.value;
+    const columnName = plotColumnSelect.value;
+    const formData = new FormData();
+    formData.append('file', currentFile);
+    formData.append('plot_type', plotType);
+    formData.append('column', columnName);
+    fetch(PLOT_URL, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.ok ? response.json() : response.json().then(err => { throw new Error(err.error || 'Server error') }))
+    .then(plotData => {
+        if (plotData.error) {
+            alert(`Error: ${plotData.error}`);
+        } else {
+            renderChart(plotData.labels, plotData.data, plotType, columnName);
+        }
+    })
+    .catch(error => {
+        alert(`An error occurred: ${error.message}`);
+    });
+}
+
+function renderChart(labels, data, plotType, columnName) {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    if (myChart) {
+        myChart.destroy();
+    }
+    myChart = new Chart(ctx, {
+        type: plotType,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `Count of ${columnName}`,
+                data: data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)',
+                    'rgba(99, 255, 132, 0.5)', 'rgba(162, 54, 235, 0.5)',
+                    'rgba(206, 255, 86, 0.5)', 'rgba(192, 75, 192, 0.5)',
+                    'rgba(102, 153, 255, 0.5)', 'rgba(159, 255, 64, 0.5)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Distribution for column: ${columnName}`
+                }
+            }
+        }
+    });
 }

@@ -6,8 +6,8 @@ from flask_cors import CORS
 # Initialize the Flask application
 app = Flask(__name__)
 # Enable Cross-Origin Resource Sharing (CORS) to allow the frontend to communicate with this backend
-# frontend URL from Render
-CORS(app, origins="https://csv-analyzer-2025-frontend.onrender.com")
+CORS(app, origins="https://csv-analyzer-frontend.onrender.com") # Make sure this matches your frontend URL
+
 # --- Helper function to process the uploaded file ---
 def process_file_to_dataframe(file_request):
     if 'file' not in file_request.files:
@@ -19,7 +19,8 @@ def process_file_to_dataframe(file_request):
 
     if file and file.filename.endswith('.csv'):
         try:
-            csv_content = file.stream.read().decode('utf-8')
+            # It's safer to provide an encoding or handle potential errors
+            csv_content = file.stream.read().decode('utf-8', errors='replace')
             csv_file = io.StringIO(csv_content)
             df = pd.read_csv(csv_file)
             return df, None
@@ -71,24 +72,18 @@ def describe_columns():
     if error_response:
         return jsonify(error_response[0]), error_response[1]
     
-    # Get the list of columns to describe from the form data
     selected_columns = request.form.getlist('columns')
     if not selected_columns:
         return jsonify({'error': 'No columns selected for description.'}), 400
 
     try:
-        # Filter the DataFrame to only include selected numeric columns
-        # Also, perform a sanity check to ensure columns exist
         existing_cols = [col for col in selected_columns if col in df.columns]
         numeric_df = df[existing_cols].select_dtypes(include='number')
 
         if numeric_df.empty:
             return jsonify({'error': 'Selected columns are not numeric or do not exist.'}), 400
 
-        # Use pandas' describe() method
         stats_df = numeric_df.describe()
-        
-        # Convert the resulting statistics DataFrame to HTML
         stats_html = stats_df.to_html(classes='min-w-full divide-y divide-gray-300 bg-white rounded-lg shadow', border=0)
         
         return jsonify({'stats_html': stats_html})
@@ -96,5 +91,35 @@ def describe_columns():
     except Exception as e:
         return jsonify({'error': f'Error generating statistics: {e}'}), 500
 
+@app.route('/plot', methods=['POST'])
+def get_plot_data():
+    df, error_response = process_file_to_dataframe(request)
+    if error_response:
+        return jsonify(error_response[0]), error_response[1]
+
+    plot_type = request.form.get('plot_type')
+    column_name = request.form.get('column')
+
+    if not column_name:
+        return jsonify({'error': 'Column name not provided.'}), 400
+    
+    if column_name not in df.columns:
+        return jsonify({'error': f'Column "{column_name}" not found in file.'}), 400
+
+    try:
+        # For categorical data, get value counts. Limit to top 15 for readability.
+        counts = df[column_name].value_counts().nlargest(15)
+        
+        # Prepare data in a format Chart.js understands
+        plot_data = {
+            'labels': counts.index.astype(str).tolist(), # Ensure labels are strings
+            'data': counts.values.tolist()
+        }
+        
+        return jsonify(plot_data)
+
+    except Exception as e:
+        return jsonify({'error': f'Could not generate plot data: {e}'}), 500
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)  # --- Helper function to process the uploaded file ---
+    app.run(debug=True, port=5000)
