@@ -6,7 +6,7 @@ from flask_cors import CORS
 # Initialize the Flask application
 app = Flask(__name__)
 # Enable Cross-Origin Resource Sharing (CORS) to allow the frontend to communicate with this backend
-CORS(app, origins="https://csv-analyzer-frontend.onrender.com") # Make sure this matches your frontend URL
+CORS(app) # Make sure this matches your frontend URL
 
 # --- Helper function to process the uploaded file ---
 def process_file_to_dataframe(file_request):
