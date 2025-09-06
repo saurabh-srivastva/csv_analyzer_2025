@@ -32,7 +32,7 @@ let currentFile = null; // To store the uploaded file reference
 let columnData = []; // To store column info (name, type)
 
 // --- Backend API URLs ---
-const RENDER_BACKEND_URL = ''; // <-- Paste your live URL here
+const RENDER_BACKEND_URL = 'https://csv-analyzer-backend-s9uz.onrender.com'; // <-- Paste your live URL here
 const ANALYZE_URL = `${RENDER_BACKEND_URL}/analyze`;
 const DESCRIBE_URL = `${RENDER_BACKEND_URL}/describe`;
 
