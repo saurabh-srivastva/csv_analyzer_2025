@@ -31,20 +31,22 @@ def process_file_to_dataframe(file_request):
 
 @app.route('/analyze', methods=['POST'])
 def analyze_csv():
+    print("--- CHECKPOINT 1: ANALYZE ENDPOINT HIT ---")
     df, error_response = process_file_to_dataframe(request)
     if error_response:
+        print(f"Error in processing file: {error_response[0]}")
         return jsonify(error_response[0]), error_response[1]
-
+    
+    print("--- CHECKPOINT 2: FILE PROCESSED TO DATAFRAME ---")
     try:
-        # Get the number of rows for the preview, default to 5
         num_rows = int(request.form.get('rows', 5))
         if num_rows < 1:
             num_rows = 5
         
-        # Generate HTML for the data preview
+        print(f"--- CHECKPOINT 3: GENERATING HTML FOR {num_rows} ROWS ---")
         head_html = df.head(num_rows).to_html(classes='min-w-full divide-y divide-gray-300 bg-white rounded-lg shadow', border=0, index=False)
         
-        # Generate column descriptions
+        print("--- CHECKPOINT 4: GENERATING COLUMN DESCRIPTIONS ---")
         description_data = []
         null_counts = df.isnull().sum()
         for col in df.columns:
@@ -55,7 +57,7 @@ def analyze_csv():
                 'dtype': str(df[col].dtype),
             })
         
-        # Return the complete analysis
+        print("--- CHECKPOINT 5: ANALYSIS COMPLETE, SENDING RESPONSE ---")
         return jsonify({
             'filename': request.files['file'].filename,
             'rows': len(df),
@@ -64,7 +66,9 @@ def analyze_csv():
             'description': description_data
         })
     except Exception as e:
+        print(f"--- EXCEPTION OCCURRED: {e} ---")
         return jsonify({'error': f'Error during analysis: {e}'}), 500
+        
 
 @app.route('/describe', methods=['POST'])
 def describe_columns():
